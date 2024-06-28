@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import './TaskList.css';
 
 interface Task {
@@ -8,7 +9,15 @@ interface Task {
   category: string;
   dueDate: string;
   priority: string;
-  comments: string[]; // Add comments property
+  comments: string[];
+  subtasks: Subtask[];
+  sharedWith: string[];
+}
+
+interface Subtask {
+  id: number;
+  title: string;
+  completed: boolean;
 }
 
 interface Category {
@@ -16,7 +25,11 @@ interface Category {
   name: string;
 }
 
-const TaskList: React.FC = () => {
+interface TaskListProps {
+  token: string;
+}
+
+const TaskList: React.FC<TaskListProps> = ({ token }) => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [newTaskTitle, setNewTaskTitle] = useState<string>('');
   const [newTaskDueDate, setNewTaskDueDate] = useState<string>('');
@@ -34,7 +47,23 @@ const TaskList: React.FC = () => {
   const [editTaskDueDate, setEditTaskDueDate] = useState<string>('');
   const [editTaskPriority, setEditTaskPriority] = useState<string>('');
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const [newComment, setNewComment] = useState<string>(''); // Add state for new comment
+  const [newComment, setNewComment] = useState<string>('');
+  const [newSubtaskTitle, setNewSubtaskTitle] = useState<string>('');
+
+  useEffect(() => {
+    const fetchTasks = async () => {
+      try {
+        const response = await axios.get('http://localhost:5000/protected', {
+          headers: { Authorization: token }
+        });
+        setTasks(response.data.tasks || []); // Ensure tasks are initialized properly
+      } catch (error) {
+        console.error('Error fetching tasks', error);
+      }
+    };
+
+    fetchTasks();
+  }, [token]);
 
   const addTask = () => {
     if (!newTaskTitle || !selectedCategory || !newTaskDueDate || !newTaskPriority) return;
@@ -46,7 +75,9 @@ const TaskList: React.FC = () => {
       category: selectedCategory,
       dueDate: newTaskDueDate,
       priority: newTaskPriority,
-      comments: [] // Initialize comments as empty array
+      comments: [],
+      subtasks: [],
+      sharedWith: []
     };
     setTasks([...tasks, newTask]);
     setNewTaskTitle('');
@@ -100,6 +131,24 @@ const TaskList: React.FC = () => {
       task.id === taskId ? { ...task, comments: [...task.comments, newComment] } : task
     ));
     setNewComment('');
+  };
+
+  const addSubtask = (taskId: number) => {
+    setTasks(tasks.map(task =>
+      task.id === taskId ? { ...task, subtasks: [...task.subtasks, { id: Date.now(), title: newSubtaskTitle, completed: false }] } : task
+    ));
+    setNewSubtaskTitle('');
+  };
+
+  const toggleSubtaskStatus = (taskId: number, subtaskId: number) => {
+    setTasks(tasks.map(task =>
+      task.id === taskId ? {
+        ...task,
+        subtasks: task.subtasks.map(subtask =>
+          subtask.id === subtaskId ? { ...subtask, completed: !subtask.completed } : subtask
+        )
+      } : task
+    ));
   };
 
   const filteredTasks = tasks.filter(task =>
@@ -210,6 +259,27 @@ const TaskList: React.FC = () => {
                   <ul>
                     {task.comments.map((comment, index) => (
                       <li key={index}>{comment}</li>
+                    ))}
+                  </ul>
+                </div>
+                <div>
+                  <input
+                    type="text"
+                    value={newSubtaskTitle}
+                    onChange={(e) => setNewSubtaskTitle(e.target.value)}
+                    placeholder="New subtask title"
+                  />
+                  <button onClick={() => addSubtask(task.id)}>Add Subtask</button>
+                  <ul>
+                    {task.subtasks.map(subtask => (
+                      <li key={subtask.id}>
+                        <span
+                          style={{ textDecoration: subtask.completed ? 'line-through' : 'none' }}
+                          onClick={() => toggleSubtaskStatus(task.id, subtask.id)}
+                        >
+                          {subtask.title}
+                        </span>
+                      </li>
                     ))}
                   </ul>
                 </div>
