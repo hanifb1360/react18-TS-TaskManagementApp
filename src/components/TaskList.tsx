@@ -7,7 +7,8 @@ interface Task {
   completed: boolean;
   category: string;
   dueDate: string;
-  priority: string; // Add priority property
+  priority: string;
+  comments: string[]; // Add comments property
 }
 
 interface Category {
@@ -19,7 +20,7 @@ const TaskList: React.FC = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [newTaskTitle, setNewTaskTitle] = useState<string>('');
   const [newTaskDueDate, setNewTaskDueDate] = useState<string>('');
-  const [newTaskPriority, setNewTaskPriority] = useState<string>(''); // Add state for priority
+  const [newTaskPriority, setNewTaskPriority] = useState<string>('');
   const [categories, setCategories] = useState<Category[]>([
     { id: 1, name: 'Work' },
     { id: 2, name: 'Personal' },
@@ -31,7 +32,9 @@ const TaskList: React.FC = () => {
   const [editTaskTitle, setEditTaskTitle] = useState<string>('');
   const [editTaskCategory, setEditTaskCategory] = useState<string>('');
   const [editTaskDueDate, setEditTaskDueDate] = useState<string>('');
-  const [editTaskPriority, setEditTaskPriority] = useState<string>(''); // Add state for editing priority
+  const [editTaskPriority, setEditTaskPriority] = useState<string>('');
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [newComment, setNewComment] = useState<string>(''); // Add state for new comment
 
   const addTask = () => {
     if (!newTaskTitle || !selectedCategory || !newTaskDueDate || !newTaskPriority) return;
@@ -42,13 +45,14 @@ const TaskList: React.FC = () => {
       completed: false,
       category: selectedCategory,
       dueDate: newTaskDueDate,
-      priority: newTaskPriority
+      priority: newTaskPriority,
+      comments: [] // Initialize comments as empty array
     };
     setTasks([...tasks, newTask]);
     setNewTaskTitle('');
     setSelectedCategory('');
     setNewTaskDueDate('');
-    setNewTaskPriority(''); // Clear priority after adding task
+    setNewTaskPriority('');
   };
 
   const addCategory = () => {
@@ -77,7 +81,7 @@ const TaskList: React.FC = () => {
     setEditTaskTitle(task.title);
     setEditTaskCategory(task.category);
     setEditTaskDueDate(task.dueDate);
-    setEditTaskPriority(task.priority); // Set priority for editing
+    setEditTaskPriority(task.priority);
   };
 
   const saveTask = () => {
@@ -88,8 +92,19 @@ const TaskList: React.FC = () => {
     setEditTaskTitle('');
     setEditTaskCategory('');
     setEditTaskDueDate('');
-    setEditTaskPriority(''); // Clear priority after saving task
+    setEditTaskPriority('');
   };
+
+  const addComment = (taskId: number) => {
+    setTasks(tasks.map(task =>
+      task.id === taskId ? { ...task, comments: [...task.comments, newComment] } : task
+    ));
+    setNewComment('');
+  };
+
+  const filteredTasks = tasks.filter(task =>
+    task.title.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
     <div className="task-list">
@@ -133,8 +148,14 @@ const TaskList: React.FC = () => {
         placeholder="New category name"
       />
       <button onClick={addCategory}>Add Category</button>
+      <input
+        type="text"
+        value={searchQuery}
+        onChange={(e) => setSearchQuery(e.target.value)}
+        placeholder="Search tasks"
+      />
       <ul>
-        {tasks.map(task => (
+        {filteredTasks.map(task => (
           <li key={task.id}>
             {editTaskId === task.id ? (
               <div>
@@ -178,6 +199,20 @@ const TaskList: React.FC = () => {
                 </span>
                 <button onClick={() => startEditingTask(task)}>Edit</button>
                 <button onClick={() => deleteTask(task.id)}>Delete</button>
+                <div>
+                  <input
+                    type="text"
+                    value={newComment}
+                    onChange={(e) => setNewComment(e.target.value)}
+                    placeholder="Add a comment"
+                  />
+                  <button onClick={() => addComment(task.id)}>Add Comment</button>
+                  <ul>
+                    {task.comments.map((comment, index) => (
+                      <li key={index}>{comment}</li>
+                    ))}
+                  </ul>
+                </div>
               </div>
             )}
           </li>
