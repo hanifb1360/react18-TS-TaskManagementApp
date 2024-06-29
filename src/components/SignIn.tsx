@@ -1,30 +1,29 @@
 import React, { useState } from 'react';
+import { useDispatch } from 'react-redux';
 import { supabase } from '../supabaseClient';
+import { signIn } from '../features/userSlice';
 
 const SignIn: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [message, setMessage] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const dispatch = useDispatch();
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    setError(null); // Reset error state
+
+    const { data: { user }, error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) {
       console.error('Sign in failed', error);
-      if (error.message === 'Email not confirmed') {
-        setMessage('Sign in failed: Please confirm your email first.');
-      } else {
-        setMessage('Sign in failed: ' + error.message);
-      }
+      setError(error.message);
     } else {
-      console.log('Sign in successful', data.user);
-      setMessage('Sign in successful!');
+      dispatch(signIn(user));
     }
   };
 
   return (
     <div>
-      {message && <p>{message}</p>}
       <form onSubmit={handleSignIn}>
         <input
           type="email"
@@ -40,9 +39,9 @@ const SignIn: React.FC = () => {
         />
         <button type="submit">Sign In</button>
       </form>
+      {error && <p style={{ color: 'red' }}>{error}</p>}
     </div>
   );
 };
 
 export default SignIn;
-

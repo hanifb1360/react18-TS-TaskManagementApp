@@ -14,19 +14,25 @@ const App: React.FC = () => {
   const user = useSelector((state: RootState) => state.user.user);
 
   useEffect(() => {
+    console.log("Fetching user...");
     dispatch(fetchUser());
   }, [dispatch]);
 
   useEffect(() => {
     if (user) {
+      console.log("User authenticated, fetching tasks...");
       dispatch(fetchTasks());
+    } else {
+      console.log("User not authenticated");
     }
   }, [user, dispatch]);
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
-    dispatch(fetchUser()); // Fetch user again to update state
+    dispatch({ type: 'user/signOut' });
   };
+
+  console.log("User state in App component:", user);
 
   return (
     <div className="App">
@@ -38,8 +44,8 @@ const App: React.FC = () => {
         </>
       ) : (
         <>
-          <SignUp />
           <SignIn />
+          <SignUp />
         </>
       )}
     </div>

@@ -25,7 +25,18 @@ export const fetchUser = createAsyncThunk<any, void, { rejectValue: string }>(
 const userSlice = createSlice({
   name: 'user',
   initialState,
-  reducers: {},
+  reducers: {
+    signOut(state) {
+      state.user = null;
+      state.loading = false;
+      state.error = null;
+    },
+    signIn(state, action: PayloadAction<any>) {
+      state.user = action.payload;
+      state.loading = false;
+      state.error = null;
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(fetchUser.pending, (state) => {
@@ -42,5 +53,7 @@ const userSlice = createSlice({
       });
   },
 });
+
+export const { signOut, signIn } = userSlice.actions;
 
 export default userSlice.reducer;
