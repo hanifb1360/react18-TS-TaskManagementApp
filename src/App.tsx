@@ -1,54 +1,45 @@
-import React, { useEffect, useState } from 'react';
-import { supabase } from './supabaseClient';
+import React, { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState, AppDispatch } from './app/store';
+import { fetchUser } from './features/userSlice';
+import { fetchTasks } from './features/tasksSlice';
 import SignUp from './components/SignUp';
 import SignIn from './components/SignIn';
 import TaskList from './components/TaskList';
 import AddTask from './components/AddTask';
-import './styles.css';
+import { supabase } from './supabaseClient';
 
 const App: React.FC = () => {
-  const [user, setUser] = useState<null | any>(null);
-  const [showSignIn, setShowSignIn] = useState(false);
+  const dispatch = useDispatch<AppDispatch>();
+  const user = useSelector((state: RootState) => state.user.user);
 
   useEffect(() => {
-    const fetchUser = async () => {
-      const { data: { user }, error } = await supabase.auth.getUser();
-      if (error) {
-        console.error('Error fetching user', error);
-      } else {
-        setUser(user);
-      }
-    };
+    dispatch(fetchUser());
+  }, [dispatch]);
 
-    fetchUser();
+  useEffect(() => {
+    if (user) {
+      dispatch(fetchTasks());
+    }
+  }, [user, dispatch]);
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user || null);
-    });
-
-    return () => {
-      subscription?.unsubscribe();
-    };
-  }, []);
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    dispatch(fetchUser()); // Fetch user again to update state
+  };
 
   return (
     <div className="App">
       {user ? (
         <>
-          <button onClick={() => supabase.auth.signOut()}>Sign Out</button>
+          <button onClick={handleSignOut}>Sign Out</button>
           <AddTask />
           <TaskList />
         </>
       ) : (
         <>
-          {showSignIn ? (
-            <SignIn />
-          ) : (
-            <SignUp />
-          )}
-          {!showSignIn && (
-            <button onClick={() => setShowSignIn(true)}>Already have an account? Sign In</button>
-          )}
+          <SignUp />
+          <SignIn />
         </>
       )}
     </div>

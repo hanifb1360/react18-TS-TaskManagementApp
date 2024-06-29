@@ -1,29 +1,21 @@
 import React, { useState } from 'react';
-import { supabase } from '../supabaseClient';
+import { useDispatch, useSelector } from 'react-redux';
+import { addTask } from '../features/tasksSlice';
+import { RootState, AppDispatch } from '../app/store';
 
 const AddTask: React.FC = () => {
   const [title, setTitle] = useState('');
   const [category, setCategory] = useState('');
   const [dueDate, setDueDate] = useState('');
   const [priority, setPriority] = useState('');
+  const dispatch = useDispatch<AppDispatch>();
+  const user = useSelector((state: RootState) => state.user.user);
 
   const handleAddTask = async (e: React.FormEvent) => {
     e.preventDefault();
-    const { data: { user }, error: userError } = await supabase.auth.getUser();
-    if (userError) {
-      console.error('Error fetching user', userError);
-      return;
-    }
-    if (!user) return;
 
-    const { data, error } = await supabase
-      .from('tasks')
-      .insert([{ title, category, due_date: dueDate, priority, user_id: user.id }]);
-
-    if (error) {
-      console.error('Add task failed', error);
-    } else {
-      console.log('Task added', data);
+    if (user) {
+      dispatch(addTask({ title, category, due_date: dueDate, priority }));
       setTitle('');
       setCategory('');
       setDueDate('');
