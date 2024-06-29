@@ -19,23 +19,27 @@ const SignUp: React.FC = () => {
       setError(error.message);
     } else {
       dispatch(signIn(user));
+      setEmail('');
+      setPassword('');
     }
   };
 
   return (
     <div>
-      <form onSubmit={handleSignUp}>
+      <form onSubmit={handleSignUp} autoComplete="off">
         <input
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="Email"
+          autoComplete="new-email"
         />
         <input
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           placeholder="Password"
+          autoComplete="new-password"
         />
         <button type="submit">Sign Up</button>
       </form>
@@ -45,3 +49,4 @@ const SignUp: React.FC = () => {
 };
 
 export default SignUp;
+
