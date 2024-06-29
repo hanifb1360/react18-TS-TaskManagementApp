@@ -1,39 +1,46 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import { supabase } from '../supabaseClient';
 
 const SignUp: React.FC = () => {
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSignUp = async () => {
-    try {
-      await axios.post('http://localhost:5000/register', {
-        username,
-        password,
-      });
-      alert('User registered successfully');
-    } catch (error) {
-      console.error('Error signing up', error);
-      alert('User registration failed');
+  const handleSignUp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null); // Reset error state
+
+    const { error } = await supabase.auth.signUp({ email, password });
+    if (error) {
+      console.error('Sign up failed', error);
+      if (error.message === 'Email rate limit exceeded') {
+        setError('Too many sign-up attempts. Please try again later.');
+      } else {
+        setError(error.message);
+      }
+    } else {
+      console.log('Sign up successful');
     }
   };
 
   return (
     <div>
-      <h2>Sign Up</h2>
-      <input
-        type="text"
-        value={username}
-        onChange={(e) => setUsername(e.target.value)}
-        placeholder="Username"
-      />
-      <input
-        type="password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        placeholder="Password"
-      />
-      <button onClick={handleSignUp}>Sign Up</button>
+      <form onSubmit={handleSignUp}>
+        <input
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="Email"
+        />
+        <input
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          placeholder="Password"
+        />
+        <button type="submit">Sign Up</button>
+      </form>
+      {error && <p style={{ color: 'red' }}>{error}</p>}
     </div>
   );
 };

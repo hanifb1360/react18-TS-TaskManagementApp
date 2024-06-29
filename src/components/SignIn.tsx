@@ -1,45 +1,48 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import { supabase } from '../supabaseClient';
 
-interface SignInProps {
-  onSignIn: (token: string) => void;
-}
-
-const SignIn: React.FC<SignInProps> = ({ onSignIn }) => {
-  const [username, setUsername] = useState('');
+const SignIn: React.FC = () => {
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [message, setMessage] = useState('');
 
-  const handleSignIn = async () => {
-    try {
-      const response = await axios.post('http://localhost:5000/login', {
-        username,
-        password,
-      });
-      onSignIn(response.data.token);
-    } catch (error) {
-      console.error('Error signing in', error);
-      alert('Invalid username or password');
+  const handleSignIn = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) {
+      console.error('Sign in failed', error);
+      if (error.message === 'Email not confirmed') {
+        setMessage('Sign in failed: Please confirm your email first.');
+      } else {
+        setMessage('Sign in failed: ' + error.message);
+      }
+    } else {
+      console.log('Sign in successful', data.user);
+      setMessage('Sign in successful!');
     }
   };
 
   return (
     <div>
-      <h2>Sign In</h2>
-      <input
-        type="text"
-        value={username}
-        onChange={(e) => setUsername(e.target.value)}
-        placeholder="Username"
-      />
-      <input
-        type="password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        placeholder="Password"
-      />
-      <button onClick={handleSignIn}>Sign In</button>
+      {message && <p>{message}</p>}
+      <form onSubmit={handleSignIn}>
+        <input
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="Email"
+        />
+        <input
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          placeholder="Password"
+        />
+        <button type="submit">Sign In</button>
+      </form>
     </div>
   );
 };
 
 export default SignIn;
+
