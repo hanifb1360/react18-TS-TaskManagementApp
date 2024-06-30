@@ -3,7 +3,11 @@ import { useDispatch, useSelector } from 'react-redux';
 import { addTask } from '../features/tasksSlice';
 import { RootState, AppDispatch } from '../app/store';
 
-const AddTask: React.FC = () => {
+interface AddTaskProps {
+  categories: string[];
+}
+
+const AddTask: React.FC<AddTaskProps> = ({ categories }) => {
   const [title, setTitle] = useState('');
   const [category, setCategory] = useState('');
   const [dueDate, setDueDate] = useState('');
@@ -24,18 +28,48 @@ const AddTask: React.FC = () => {
   };
 
   return (
-    <form onSubmit={handleAddTask}>
-      <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Task title" />
-      <input type="text" value={category} onChange={(e) => setCategory(e.target.value)} placeholder="Category" />
-      <input type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} />
-      <select value={priority} onChange={(e) => setPriority(e.target.value)}>
-        <option value="">Select Priority</option>
-        <option value="High">High</option>
-        <option value="Medium">Medium</option>
-        <option value="Low">Low</option>
-      </select>
-      <button type="submit">Add Task</button>
-    </form>
+    <div>
+      <h1 className="text-xl font-bold mb-4">Add Task</h1>
+      <form onSubmit={handleAddTask} autoComplete="off" className="space-y-4">
+        <input
+          type="text"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          placeholder="Task title"
+          autoComplete="off"
+          className="w-full p-2 border border-gray-300 rounded"
+        />
+        <select
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+          className="w-full p-2 border border-gray-300 rounded"
+        >
+          <option value="">Select Category</option>
+          {categories.map((cat, idx) => (
+            <option key={idx} value={cat}>{cat}</option>
+          ))}
+        </select>
+        <input
+          type="date"
+          value={dueDate}
+          onChange={(e) => setDueDate(e.target.value)}
+          className="w-full p-2 border border-gray-300 rounded"
+        />
+        <select
+          value={priority}
+          onChange={(e) => setPriority(e.target.value)}
+          className="w-full p-2 border border-gray-300 rounded"
+        >
+          <option value="">Select Priority</option>
+          <option value="High">High</option>
+          <option value="Medium">Medium</option>
+          <option value="Low">Low</option>
+        </select>
+        <button type="submit" className="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+          Add Task
+        </button>
+      </form>
+    </div>
   );
 };
 

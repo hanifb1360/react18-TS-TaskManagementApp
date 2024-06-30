@@ -26,13 +26,14 @@ const SignUp: React.FC = () => {
 
   return (
     <div>
-      <form onSubmit={handleSignUp} autoComplete="off">
+      <form onSubmit={handleSignUp} autoComplete="off" className="space-y-4">
         <input
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="Email"
           autoComplete="new-email"
+          className="w-full p-2 border border-gray-300 rounded"
         />
         <input
           type="password"
@@ -40,13 +41,15 @@ const SignUp: React.FC = () => {
           onChange={(e) => setPassword(e.target.value)}
           placeholder="Password"
           autoComplete="new-password"
+          className="w-full p-2 border border-gray-300 rounded"
         />
-        <button type="submit">Sign Up</button>
+        <button type="submit" className="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+          Sign Up
+        </button>
       </form>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
+      {error && <p className="mt-4 text-red-500">{error}</p>}
     </div>
   );
 };
 
 export default SignUp;
-
