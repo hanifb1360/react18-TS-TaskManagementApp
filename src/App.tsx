@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RootState, AppDispatch } from './app/store';
 import { fetchUser } from './features/userSlice';
 import { fetchTasks } from './features/tasksSlice';
+import { fetchCategories } from './features/categoriesSlice';
 import SignUp from './components/SignUp';
 import SignIn from './components/SignIn';
 import TaskList from './components/TaskList';
@@ -14,19 +15,15 @@ const App: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const user = useSelector((state: RootState) => state.user.user);
   const [isSignUp, setIsSignUp] = useState(false);
-  const [categories, setCategories] = useState<string[]>(['Work', 'Personal', 'Shopping']);
 
   useEffect(() => {
-    console.log("Fetching user...");
     dispatch(fetchUser());
   }, [dispatch]);
 
   useEffect(() => {
     if (user) {
-      console.log("User authenticated, fetching tasks...");
       dispatch(fetchTasks());
-    } else {
-      console.log("User not authenticated");
+      dispatch(fetchCategories());
     }
   }, [user, dispatch]);
 
@@ -38,12 +35,6 @@ const App: React.FC = () => {
   const toggleForm = () => {
     setIsSignUp(!isSignUp);
   };
-
-  const addCategory = (category: string) => {
-    setCategories([...categories, category]);
-  };
-
-  console.log("User state in App component:", user);
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 p-4">
@@ -57,9 +48,9 @@ const App: React.FC = () => {
               Sign Out
             </button>
           </div>
-          <ManageCategories categories={categories} onAddCategory={addCategory} />
+          <ManageCategories />
           <div className="w-full max-w-md p-4 bg-white rounded shadow-md mb-4">
-            <AddTask categories={categories} />
+            <AddTask />
           </div>
           <div className="w-full max-w-md p-4 bg-white rounded shadow-md">
             <TaskList />
@@ -101,4 +92,3 @@ const App: React.FC = () => {
 };
 
 export default App;
-

@@ -3,17 +3,14 @@ import { useDispatch, useSelector } from 'react-redux';
 import { addTask } from '../features/tasksSlice';
 import { RootState, AppDispatch } from '../app/store';
 
-interface AddTaskProps {
-  categories: string[];
-}
-
-const AddTask: React.FC<AddTaskProps> = ({ categories }) => {
+const AddTask: React.FC = () => {
   const [title, setTitle] = useState('');
   const [category, setCategory] = useState('');
   const [dueDate, setDueDate] = useState('');
   const [priority, setPriority] = useState('');
   const dispatch = useDispatch<AppDispatch>();
   const user = useSelector((state: RootState) => state.user.user);
+  const categories = useSelector((state: RootState) => state.categories.categories);
 
   const handleAddTask = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,8 +42,8 @@ const AddTask: React.FC<AddTaskProps> = ({ categories }) => {
           className="w-full p-2 border border-gray-300 rounded"
         >
           <option value="">Select Category</option>
-          {categories.map((cat, idx) => (
-            <option key={idx} value={cat}>{cat}</option>
+          {categories.map((cat: { name: string }, idx: number) => (
+            <option key={idx} value={cat.name}>{cat.name}</option>
           ))}
         </select>
         <input

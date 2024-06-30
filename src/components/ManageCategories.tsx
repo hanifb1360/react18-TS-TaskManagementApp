@@ -1,16 +1,16 @@
 import React, { useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState, AppDispatch } from '../app/store';
+import { addCategory } from '../features/categoriesSlice';
 
-interface ManageCategoriesProps {
-  categories: string[];
-  onAddCategory: (category: string) => void;
-}
-
-const ManageCategories: React.FC<ManageCategoriesProps> = ({ categories, onAddCategory }) => {
+const ManageCategories: React.FC = () => {
+  const categories = useSelector((state: RootState) => state.categories.categories);
+  const dispatch = useDispatch<AppDispatch>();
   const [newCategory, setNewCategory] = useState('');
 
   const handleAddCategory = () => {
     if (newCategory.trim() !== '') {
-      onAddCategory(newCategory.trim());
+      dispatch(addCategory(newCategory.trim()));
       setNewCategory('');
     }
   };
@@ -19,8 +19,8 @@ const ManageCategories: React.FC<ManageCategoriesProps> = ({ categories, onAddCa
     <div className="w-full max-w-md p-4 bg-white rounded shadow-md mb-4">
       <h2 className="text-xl font-bold mb-4">Manage Categories</h2>
       <ul className="mb-4">
-        {categories.map((category, index) => (
-          <li key={index} className="py-2 px-4 border-b">{category}</li>
+        {categories.map((category: { name: string }, index: number) => (
+          <li key={index} className="py-2 px-4 border-b">{category.name}</li>
         ))}
       </ul>
       <input
@@ -41,3 +41,4 @@ const ManageCategories: React.FC<ManageCategoriesProps> = ({ categories, onAddCa
 };
 
 export default ManageCategories;
+
