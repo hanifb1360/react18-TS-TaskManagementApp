@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RootState, AppDispatch } from '../app/store';
 import { deleteTask, updateTaskCompletion } from '../features/tasksSlice';
 import TaskDetailsModal from './TaskDetailsModal';
-import { FaMinus } from 'react-icons/fa';  // Importing the minus icon from react-icons
+import { FaMinus } from 'react-icons/fa'; // Import the minus icon
 
 const TaskList: React.FC = () => {
   const tasks = useSelector((state: RootState) => state.tasks.tasks);
@@ -32,6 +32,9 @@ const TaskList: React.FC = () => {
     task.title.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const incompleteTasks = filteredTasks.filter(task => !task.completed);
+  const completedTasks = filteredTasks.filter(task => task.completed);
+
   const today = new Date().toISOString().split('T')[0];
 
   return (
@@ -46,50 +49,101 @@ const TaskList: React.FC = () => {
       />
       {loading ? (
         <p>Loading tasks...</p>
-      ) : filteredTasks.length > 0 ? (
-        <div className="overflow-x-auto">
-          <table className="min-w-full bg-white shadow-md rounded">
-            <thead>
-              <tr className="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
-                <th className="py-3 px-6 text-left">Title</th>
-                <th className="py-3 px-6 text-left">Due Date</th>
-                <th className="py-3 px-6 text-center">Completed</th>
-                <th className="py-3 px-6 text-center">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="text-gray-600 text-sm font-light">
-              {filteredTasks.map(task => (
-                <tr key={task.id} className="border-b border-gray-200 hover:bg-gray-100">
-                  <td className="py-3 px-6 text-left">{task.title}</td>
-                  <td className={`py-3 px-6 text-left ${task.due_date === today ? 'text-red-500' : ''}`}>{task.due_date}</td>
-                  <td className="py-3 px-6 text-center">
-                    <input
-                      type="checkbox"
-                      checked={task.completed}
-                      onChange={() => handleToggleCompletion(task.id, task.completed)}
-                    />
-                  </td>
-                  <td className="py-3 px-6 text-center flex justify-center space-x-4">
-                    <button
-                      className="text-blue-500 hover:underline"
-                      onClick={() => handleViewDetails(task)}
-                    >
-                      Details
-                    </button>
-                    <button
-                      className="text-red-500 hover:underline"
-                      onClick={() => handleDelete(task.id)}
-                    >
-                      <FaMinus />
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
       ) : (
-        <p>No tasks found.</p>
+        <>
+          {incompleteTasks.length > 0 && (
+            <div className="mb-6">
+              <h2 className="text-xl font-semibold mb-4">Incomplete Tasks</h2>
+              <div className="overflow-x-auto">
+                <table className="min-w-full bg-white shadow-md rounded">
+                  <thead>
+                    <tr className="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
+                      <th className="py-3 px-6 text-left">Title</th>
+                      <th className="py-3 px-6 text-left">Due Date</th>
+                      <th className="py-3 px-6 text-center">Completed</th>
+                      <th className="py-3 px-6 text-center">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="text-gray-600 text-sm font-light">
+                    {incompleteTasks.map(task => (
+                      <tr key={task.id} className="border-b border-gray-200 hover:bg-gray-100">
+                        <td className="py-3 px-6 text-left">{task.title}</td>
+                        <td className={`py-3 px-6 text-left ${task.due_date === today ? 'text-red-500' : ''}`}>{task.due_date}</td>
+                        <td className="py-3 px-6 text-center">
+                          <input
+                            type="checkbox"
+                            checked={task.completed}
+                            onChange={() => handleToggleCompletion(task.id, task.completed)}
+                          />
+                        </td>
+                        <td className="py-3 px-6 text-center flex justify-center space-x-4">
+                          <button
+                            className="text-blue-500 hover:underline"
+                            onClick={() => handleViewDetails(task)}
+                          >
+                            Details
+                          </button>
+                          <button
+                            className="text-red-500 hover:underline"
+                            onClick={() => handleDelete(task.id)}
+                          >
+                            <FaMinus />
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+          {completedTasks.length > 0 && (
+            <div>
+              <h2 className="text-xl font-semibold mb-4">Completed Tasks</h2>
+              <div className="overflow-x-auto">
+                <table className="min-w-full bg-white shadow-md rounded">
+                  <thead>
+                    <tr className="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
+                      <th className="py-3 px-6 text-left">Title</th>
+                      <th className="py-3 px-6 text-left">Due Date</th>
+                      <th className="py-3 px-6 text-center">Completed</th>
+                      <th className="py-3 px-6 text-center">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="text-gray-600 text-sm font-light">
+                    {completedTasks.map(task => (
+                      <tr key={task.id} className="border-b border-gray-200 hover:bg-gray-100">
+                        <td className="py-3 px-6 text-left">{task.title}</td>
+                        <td className={`py-3 px-6 text-left ${task.due_date === today ? 'text-red-500' : ''}`}>{task.due_date}</td>
+                        <td className="py-3 px-6 text-center">
+                          <input
+                            type="checkbox"
+                            checked={task.completed}
+                            onChange={() => handleToggleCompletion(task.id, task.completed)}
+                          />
+                        </td>
+                        <td className="py-3 px-6 text-center flex justify-center space-x-4">
+                          <button
+                            className="text-blue-500 hover:underline"
+                            onClick={() => handleViewDetails(task)}
+                          >
+                            Details
+                          </button>
+                          <button
+                            className="text-red-500 hover:underline"
+                            onClick={() => handleDelete(task.id)}
+                          >
+                            <FaMinus />
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+        </>
       )}
       {selectedTask && <TaskDetailsModal task={selectedTask} onClose={closeModal} />}
     </div>
@@ -97,3 +151,4 @@ const TaskList: React.FC = () => {
 };
 
 export default TaskList;
+
