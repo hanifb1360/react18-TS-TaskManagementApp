@@ -10,6 +10,7 @@ import TaskList from './components/TaskList';
 import AddTask from './components/AddTask';
 import ManageCategories from './components/ManageCategories';
 import Navbar from './components/Navbar';
+import UserProfile from './components/UserProfile';
 import { supabase } from './supabaseClient';
 
 const App: React.FC = () => {
@@ -47,6 +48,7 @@ const App: React.FC = () => {
             {activeTab === 'tasks' && <TaskList />}
             {activeTab === 'add' && <AddTask />}
             {activeTab === 'categories' && <ManageCategories />}
+            {activeTab === 'profile' && <UserProfile />}
           </div>
         </>
       ) : (
