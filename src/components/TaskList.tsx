@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState, AppDispatch } from '../app/store';
-import { deleteTask, updateTaskCompletion } from '../features/tasksSlice';
+import { fetchTasks, deleteTask, updateTaskCompletion } from '../features/tasksSlice';
 import TaskDetailsModal from './TaskDetailsModal';
-import { FaMinus } from 'react-icons/fa'; // Import the minus icon
+import { FaMinus } from 'react-icons/fa';
 
 const TaskList: React.FC = () => {
   const tasks = useSelector((state: RootState) => state.tasks.tasks);
@@ -11,6 +11,10 @@ const TaskList: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const [selectedTask, setSelectedTask] = useState<any | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
+
+  useEffect(() => {
+    dispatch(fetchTasks());
+  }, [dispatch]);
 
   const handleDelete = (taskId: string) => {
     dispatch(deleteTask(taskId));
@@ -38,7 +42,7 @@ const TaskList: React.FC = () => {
   const today = new Date().toISOString().split('T')[0];
 
   return (
-    <div>
+    <div className="max-w-4xl mx-auto p-4 bg-white shadow-md rounded-lg">
       <h1 className="text-2xl font-bold mb-6">Task List</h1>
       <input
         type="text"
@@ -151,4 +155,5 @@ const TaskList: React.FC = () => {
 };
 
 export default TaskList;
+
 

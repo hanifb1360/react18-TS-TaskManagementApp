@@ -19,7 +19,7 @@ const initialState: UserState = {
 };
 
 export const fetchUser = createAsyncThunk<
-  { id: string; email: string; name: string; avatarUrl: string },
+  { id: string; email: string; name: string; avatarUrl: string } | null,
   void,
   { rejectValue: string }
 >(

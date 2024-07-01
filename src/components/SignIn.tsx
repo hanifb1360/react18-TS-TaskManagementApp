@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { supabase } from '../supabaseClient';
 import { fetchUser } from '../features/userSlice';
-import { AppDispatch } from '../app/store'; // Ensure you import your AppDispatch type
+import { AppDispatch } from '../app/store';
 
 const SignIn: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -49,3 +49,4 @@ const SignIn: React.FC = () => {
 };
 
 export default SignIn;
+
