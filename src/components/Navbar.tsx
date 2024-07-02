@@ -16,30 +16,35 @@ const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab, handleSignOut 
     navigate('/login');
   };
 
+  const handleTabClick = (tab: string) => {
+    setActiveTab(tab);
+    navigate(`/${tab}`);
+  };
+
   return (
-    <div className="bg-gray-800 text-white px-4 py-2 flex justify-between fixed w-full top-0 left-0 z-10">
+    <div className="bg-gray-800 text-white px-4 py-2 flex justify-between items-center fixed w-full top-0 left-0 z-10 h-12">
       <div className="flex space-x-4">
         <button
           className={`py-2 px-4 ${activeTab === 'tasks' ? 'bg-gray-600' : ''}`}
-          onClick={() => setActiveTab('tasks')}
+          onClick={() => handleTabClick('tasks')}
         >
           Task List
         </button>
         <button
           className={`py-2 px-4 ${activeTab === 'add' ? 'bg-gray-600' : ''}`}
-          onClick={() => setActiveTab('add')}
+          onClick={() => handleTabClick('add')}
         >
           Add Task
         </button>
         <button
           className={`py-2 px-4 ${activeTab === 'categories' ? 'bg-gray-600' : ''}`}
-          onClick={() => setActiveTab('categories')}
+          onClick={() => handleTabClick('categories')}
         >
           Manage Categories
         </button>
         <button
           className={`py-2 px-4 ${activeTab === 'profile' ? 'bg-gray-600' : ''}`}
-          onClick={() => setActiveTab('profile')}
+          onClick={() => handleTabClick('profile')}
         >
           Profile
         </button>
