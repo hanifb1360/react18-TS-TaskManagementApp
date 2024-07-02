@@ -4,44 +4,41 @@ import { RootState, AppDispatch } from '../app/store';
 import { addTask } from '../features/tasksSlice';
 import { fetchCategories } from '../features/categoriesSlice';
 
-// React.FC includes the children prop, and it provides type checking for the props.
 const AddTask: React.FC = () => {
-  // Local state variables for task details
   const [title, setTitle] = useState('');
   const [category, setCategory] = useState('');
   const [dueDate, setDueDate] = useState('');
+  const [priority, setPriority] = useState('');
+  const [showNotification, setShowNotification] = useState(false);
 
-  // Initialize the dispatch function for dispatching actions and sending to the Redux store. 
   const dispatch = useDispatch<AppDispatch>();
-  
-  // useSelector to access the Redux store state
   const user = useSelector((state: RootState) => state.user.user);
   const categories = useSelector((state: RootState) => state.categories.categories);
   const loading = useSelector((state: RootState) => state.categories.loading);
 
-  // useEffect hook to fetch categories when the component mounts and user changes
   useEffect(() => {
     if (user) {
       dispatch(fetchCategories());
     }
   }, [dispatch, user]);
 
-  // Function to handle form submission for adding a new task
   const handleAddTask = async (e: React.FormEvent) => {
     e.preventDefault();
     if (user) {
       const task = {
-        user_id: user.id, // Set the user ID from the logged-in user
+        user_id: user.id,
         title,
         category,
         due_date: dueDate,
+        priority,
       };
-      // Dispatch the addTask action to add the task to the store
       await dispatch(addTask(task));
-      // Clear the input fields after task is added
       setTitle('');
       setCategory('');
       setDueDate('');
+      setPriority('');
+      setShowNotification(true);
+      setTimeout(() => setShowNotification(false), 3000); // Hide notification after 3 seconds
     }
   };
 
@@ -92,6 +89,23 @@ const AddTask: React.FC = () => {
             required
           />
         </div>
+        <div className="mb-4">
+          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="priority">
+            Priority
+          </label>
+          <select
+            id="priority"
+            value={priority}
+            onChange={(e) => setPriority(e.target.value)}
+            className="w-full p-2 border border-gray-300 rounded"
+            required
+          >
+            <option value="">Select Priority</option>
+            <option value="low">Low</option>
+            <option value="medium">Medium</option>
+            <option value="high">High</option>
+          </select>
+        </div>
         <button
           type="submit"
           className={`w-full py-2 px-4 text-white font-bold rounded ${loading ? 'bg-gray-500' : 'bg-blue-500 hover:bg-blue-700'}`}
@@ -100,11 +114,18 @@ const AddTask: React.FC = () => {
           {loading ? 'Adding...' : 'Add Task'}
         </button>
       </form>
+      {showNotification && (
+        <div className="mt-4 p-2 bg-green-500 text-white text-center rounded">
+          Task added successfully!
+        </div>
+      )}
     </div>
   );
 };
 
 export default AddTask;
+
+
 
 
 
