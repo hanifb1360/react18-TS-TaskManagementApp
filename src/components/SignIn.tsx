@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { supabase } from '../supabaseClient';
 import { fetchUser } from '../features/userSlice';
@@ -6,7 +6,10 @@ import { AppDispatch } from '../app/store';
 import { Link } from 'react-router-dom';
 
 const SignIn: React.FC = () => {
-  const [email, setEmail] = useState('');
+  // Retrieve the last logged-in email from localStorage
+  const lastEmail = localStorage.getItem('lastEmail') || '';
+
+  const [email, setEmail] = useState(lastEmail);
   const [password, setPassword] = useState('');
   const dispatch = useDispatch<AppDispatch>();
 
@@ -16,6 +19,8 @@ const SignIn: React.FC = () => {
     if (error) {
       console.error('Sign in failed', error.message);
     } else {
+      // Store the email in localStorage upon successful login
+      localStorage.setItem('lastEmail', email);
       dispatch(fetchUser());
     }
   };
@@ -53,6 +58,7 @@ const SignIn: React.FC = () => {
 };
 
 export default SignIn;
+
 
 
 
