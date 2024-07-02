@@ -5,8 +5,6 @@ interface UserState {
   user: {
     id: string;
     email: string;
-    name: string;
-    avatarUrl: string;
   } | null;
   loading: boolean;
   error: string | null;
@@ -19,7 +17,7 @@ const initialState: UserState = {
 };
 
 export const fetchUser = createAsyncThunk<
-  { id: string; email: string; name: string; avatarUrl: string },
+  { id: string; email: string },
   void,
   { rejectValue: string }
 >(
@@ -33,15 +31,13 @@ export const fetchUser = createAsyncThunk<
     return {
       id: user.id,
       email: user.email || '',
-      name: user.user_metadata?.name || '',
-      avatarUrl: user.user_metadata?.avatarUrl || '',
     };
   }
 );
 
 export const updateUserProfile = createAsyncThunk<
-  { id: string; email: string; name: string; avatarUrl: string },
-  { email: string; name: string; password?: string; avatarUrl: string },
+  { id: string; email: string },
+  { email: string; password?: string },
   { rejectValue: string }
 >(
   'user/updateUserProfile',
@@ -49,14 +45,12 @@ export const updateUserProfile = createAsyncThunk<
     const { data, error } = await supabase.auth.getUser();
     if (error || !data.user) return rejectWithValue('User not authenticated');
 
-    const updates = {
+    const updates: { email: string; password?: string } = {
       email: profile.email,
-      password: profile.password || undefined,
-      data: {
-        name: profile.name,
-        avatarUrl: profile.avatarUrl,
-      },
     };
+    if (profile.password) {
+      updates.password = profile.password;
+    }
 
     const { error: updateError } = await supabase.auth.updateUser(updates);
 
@@ -67,8 +61,6 @@ export const updateUserProfile = createAsyncThunk<
     return {
       id: data.user.id,
       email: profile.email,
-      name: profile.name,
-      avatarUrl: profile.avatarUrl,
     };
   }
 );
@@ -76,9 +68,6 @@ export const updateUserProfile = createAsyncThunk<
 const userSlice = createSlice({
   name: 'user',
   initialState,
-  
-  // The clearUserState action clears the user state upon sign-out.
-  
   reducers: {
     clearUserState: (state) => {
       state.user = null;
@@ -117,4 +106,7 @@ const userSlice = createSlice({
 export const { clearUserState } = userSlice.actions;
 
 export default userSlice.reducer;
+
+
+
 
