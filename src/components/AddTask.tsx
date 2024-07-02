@@ -115,7 +115,7 @@ const AddTask: React.FC = () => {
         </button>
       </form>
       {showNotification && (
-        <div className="mt-4 p-2 bg-green-500 text-white text-center rounded">
+        <div className="mt-4 p-3 bg-green-100 border border-green-400 text-green-700 rounded">
           Task added successfully!
         </div>
       )}
@@ -124,6 +124,7 @@ const AddTask: React.FC = () => {
 };
 
 export default AddTask;
+
 
 
 

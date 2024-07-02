@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { useDispatch } from 'react-redux';
-import { AppDispatch } from '../app/store';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState, AppDispatch } from '../app/store';
+import { fetchCategories } from '../features/categoriesSlice';
 import { updateTask } from '../features/tasksSlice';
 import { FaMinus, FaCheck, FaTimes, FaEdit } from 'react-icons/fa'; // Import the icons
 
@@ -11,6 +12,7 @@ interface TaskDetailsModalProps {
 
 const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({ task, onClose }) => {
   const dispatch = useDispatch<AppDispatch>();
+  const categories = useSelector((state: RootState) => state.categories.categories);
   const [newComment, setNewComment] = useState('');
   const [editMode, setEditMode] = useState(false);
   const [editTitle, setEditTitle] = useState(task.title);
@@ -25,7 +27,8 @@ const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({ task, onClose }) =>
     setEditDueDate(task.due_date);
     setEditPriority(task.priority);
     setComments(task.comments || []);
-  }, [task]);
+    dispatch(fetchCategories()); // Fetch categories when the modal is opened
+  }, [task, dispatch]);
 
   const handleAddComment = async () => {
     const updatedComments = [...comments, newComment];
@@ -71,13 +74,16 @@ const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({ task, onClose }) =>
               className="w-full p-2 border border-gray-300 rounded mb-2"
               placeholder="Title"
             />
-            <input
-              type="text"
+            <select
               value={editCategory}
               onChange={(e) => setEditCategory(e.target.value)}
               className="w-full p-2 border border-gray-300 rounded mb-2"
-              placeholder="Category"
-            />
+            >
+              <option value="">Select Category</option>
+              {categories.map((cat) => (
+                <option key={cat.id} value={cat.name}>{cat.name}</option>
+              ))}
+            </select>
             <input
               type="date"
               value={editDueDate}
@@ -149,3 +155,4 @@ const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({ task, onClose }) =>
 };
 
 export default TaskDetailsModal;
+
