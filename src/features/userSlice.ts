@@ -19,7 +19,7 @@ const initialState: UserState = {
 };
 
 export const fetchUser = createAsyncThunk<
-  { id: string; email: string; name: string; avatarUrl: string } | null,
+  { id: string; email: string; name: string; avatarUrl: string },
   void,
   { rejectValue: string }
 >(
@@ -41,7 +41,7 @@ export const fetchUser = createAsyncThunk<
 
 export const updateUserProfile = createAsyncThunk<
   { id: string; email: string; name: string; avatarUrl: string },
-  { email: string; name: string; password: string; avatarUrl: string },
+  { email: string; name: string; password?: string; avatarUrl: string },
   { rejectValue: string }
 >(
   'user/updateUserProfile',
@@ -105,3 +105,4 @@ const userSlice = createSlice({
 });
 
 export default userSlice.reducer;
+

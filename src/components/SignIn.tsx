@@ -3,6 +3,7 @@ import { useDispatch } from 'react-redux';
 import { supabase } from '../supabaseClient';
 import { fetchUser } from '../features/userSlice';
 import { AppDispatch } from '../app/store';
+import { Link } from 'react-router-dom';
 
 const SignIn: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -44,9 +45,15 @@ const SignIn: React.FC = () => {
           Sign In
         </button>
       </form>
+      <p className="mt-4 text-center">
+        Don't have an account? <Link to="/signup" className="text-blue-500 hover:underline">Sign up here</Link>.
+      </p>
     </div>
   );
 };
 
 export default SignIn;
+
+
+
 

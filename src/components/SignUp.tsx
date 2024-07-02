@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { supabase } from '../supabaseClient';
 import { fetchUser } from '../features/userSlice';
-import { AppDispatch } from '../app/store'; // Ensure you import your AppDispatch type
+import { AppDispatch } from '../app/store';
+import { Link } from 'react-router-dom';
 
 const SignUp: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -44,6 +45,9 @@ const SignUp: React.FC = () => {
           Sign Up
         </button>
       </form>
+      <p className="mt-4">
+        Already have an account? <Link to="/login" className="text-blue-500 hover:underline">Sign in here</Link>.
+      </p>
     </div>
   );
 };
