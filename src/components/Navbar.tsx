@@ -13,7 +13,7 @@ const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab, handleSignOut 
 
   const handleSignOutClick = async () => {
     await handleSignOut();
-    navigate('/login');
+    navigate('/login'); // Ensure navigation happens after sign-out
   };
 
   const handleTabClick = (tab: string) => {
@@ -60,6 +60,7 @@ const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab, handleSignOut 
 };
 
 export default Navbar;
+
 
 
 

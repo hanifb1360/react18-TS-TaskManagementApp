@@ -76,7 +76,16 @@ export const updateUserProfile = createAsyncThunk<
 const userSlice = createSlice({
   name: 'user',
   initialState,
-  reducers: {},
+  
+  // The clearUserState action clears the user state upon sign-out.
+  
+  reducers: {
+    clearUserState: (state) => {
+      state.user = null;
+      state.loading = false;
+      state.error = null;
+    }
+  },
   extraReducers: (builder) => {
     builder
       .addCase(fetchUser.pending, (state) => {
@@ -88,6 +97,7 @@ const userSlice = createSlice({
       })
       .addCase(fetchUser.rejected, (state, action) => {
         state.loading = false;
+        state.user = null;
         state.error = action.payload as string;
       })
       .addCase(updateUserProfile.pending, (state) => {
@@ -103,6 +113,8 @@ const userSlice = createSlice({
       });
   },
 });
+
+export const { clearUserState } = userSlice.actions;
 
 export default userSlice.reducer;
 

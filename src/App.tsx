@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import { RootState, AppDispatch } from './app/store';
-import { fetchUser } from './features/userSlice';
+import { fetchUser, clearUserState } from './features/userSlice';
 import Navbar from './components/Navbar';
 import SignUp from './components/SignUp';
 import SignIn from './components/SignIn';
@@ -24,7 +24,8 @@ const App: React.FC = () => {
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
-    dispatch(fetchUser());
+    //It dispatches clearUserState to set the user state to null immediately after sign-out.
+    dispatch(clearUserState());
   };
 
   return (
@@ -56,4 +57,5 @@ const App: React.FC = () => {
 };
 
 export default App;
+
 
