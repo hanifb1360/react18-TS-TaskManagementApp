@@ -1,7 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
-// Define the prop types
 interface NavbarProps {
   activeTab: string;
   setActiveTab: React.Dispatch<React.SetStateAction<string>>;
@@ -13,7 +12,7 @@ const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab, handleSignOut 
 
   const handleSignOutClick = async () => {
     await handleSignOut();
-    navigate('/login'); // Ensure navigation happens after sign-out
+    navigate('/login');
   };
 
   const handleTabClick = (tab: string) => {
@@ -43,6 +42,12 @@ const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab, handleSignOut 
           Manage Categories
         </button>
         <button
+          className={`py-2 px-4 ${activeTab === 'lists' ? 'bg-gray-600' : ''}`}
+          onClick={() => handleTabClick('lists')}
+        >
+          Manage Lists
+        </button>
+        <button
           className={`py-2 px-4 ${activeTab === 'profile' ? 'bg-gray-600' : ''}`}
           onClick={() => handleTabClick('profile')}
         >
@@ -50,8 +55,7 @@ const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab, handleSignOut 
         </button>
       </div>
       <button
-       
-        className="text-red-500 hover:text-red-700 font-light text-sm"
+        className="text-red-500 hover:text-red-700"
         onClick={handleSignOutClick}
       >
         Sign Out
@@ -61,6 +65,8 @@ const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab, handleSignOut 
 };
 
 export default Navbar;
+
+
 
 
 

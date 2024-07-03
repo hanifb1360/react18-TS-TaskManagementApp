@@ -3,22 +3,26 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RootState, AppDispatch } from '../app/store';
 import { addTask } from '../features/tasksSlice';
 import { fetchCategories } from '../features/categoriesSlice';
+import { fetchLists } from '../features/listsSlice';
+import { addListItem } from '../features/listItemsSlice';
 
 const AddTask: React.FC = () => {
   const [title, setTitle] = useState('');
   const [category, setCategory] = useState('');
   const [dueDate, setDueDate] = useState('');
-  const [priority, setPriority] = useState('');
-  const [showNotification, setShowNotification] = useState(false);
+  const [priority, setPriority] = useState('Medium');
+  const [selectedList, setSelectedList] = useState('');
 
   const dispatch = useDispatch<AppDispatch>();
   const user = useSelector((state: RootState) => state.user.user);
   const categories = useSelector((state: RootState) => state.categories.categories);
+  const lists = useSelector((state: RootState) => state.lists.lists);
   const loading = useSelector((state: RootState) => state.categories.loading);
 
   useEffect(() => {
     if (user) {
       dispatch(fetchCategories());
+      dispatch(fetchLists());
     }
   }, [dispatch, user]);
 
@@ -32,13 +36,18 @@ const AddTask: React.FC = () => {
         due_date: dueDate,
         priority,
       };
-      await dispatch(addTask(task));
+      const resultAction = await dispatch(addTask(task));
+      if (addTask.fulfilled.match(resultAction)) {
+        const taskId = resultAction.payload.id;
+        if (selectedList) {
+          await dispatch(addListItem({ listId: selectedList, taskId, title }));
+        }
+      }
       setTitle('');
       setCategory('');
       setDueDate('');
-      setPriority('');
-      setShowNotification(true);
-      setTimeout(() => setShowNotification(false), 3000); // Hide notification after 3 seconds
+      setPriority('Medium');
+      setSelectedList('');
     }
   };
 
@@ -98,12 +107,26 @@ const AddTask: React.FC = () => {
             value={priority}
             onChange={(e) => setPriority(e.target.value)}
             className="w-full p-2 border border-gray-300 rounded"
-            required
           >
-            <option value="">Select Priority</option>
-            <option value="low">Low</option>
-            <option value="medium">Medium</option>
-            <option value="high">High</option>
+            <option value="High">High</option>
+            <option value="Medium">Medium</option>
+            <option value="Low">Low</option>
+          </select>
+        </div>
+        <div className="mb-4">
+          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="list">
+            Add to List
+          </label>
+          <select
+            id="list"
+            value={selectedList}
+            onChange={(e) => setSelectedList(e.target.value)}
+            className="w-full p-2 border border-gray-300 rounded"
+          >
+            <option value="">Select List</option>
+            {lists.map((list) => (
+              <option key={list.id} value={list.id}>{list.name}</option>
+            ))}
           </select>
         </div>
         <button
@@ -114,16 +137,14 @@ const AddTask: React.FC = () => {
           {loading ? 'Adding...' : 'Add Task'}
         </button>
       </form>
-      {showNotification && (
-        <div className="mt-4 p-3 bg-green-100 border border-green-400 text-green-700 rounded">
-          Task added successfully!
-        </div>
-      )}
     </div>
   );
 };
 
 export default AddTask;
+
+
+
 
 
 

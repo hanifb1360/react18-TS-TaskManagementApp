@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { RootState, AppDispatch } from '../app/store';
-import { fetchCategories } from '../features/categoriesSlice';
+import { AppDispatch, RootState } from '../app/store';
 import { updateTask } from '../features/tasksSlice';
-import { FaMinus, FaCheck, FaTimes, FaEdit } from 'react-icons/fa'; // Import the icons
+import { fetchLists } from '../features/listsSlice';
+import { fetchListItems, addListItem } from '../features/listItemsSlice';
+import { FaEdit, FaSave, FaTimes } from 'react-icons/fa';
 
 interface TaskDetailsModalProps {
   task: any;
@@ -12,49 +13,39 @@ interface TaskDetailsModalProps {
 
 const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({ task, onClose }) => {
   const dispatch = useDispatch<AppDispatch>();
-  const categories = useSelector((state: RootState) => state.categories.categories);
-  const [newComment, setNewComment] = useState('');
+  const lists = useSelector((state: RootState) => state.lists.lists);
+  const listItems = useSelector((state: RootState) => state.listItems.items);
   const [editMode, setEditMode] = useState(false);
   const [editTitle, setEditTitle] = useState(task.title);
   const [editCategory, setEditCategory] = useState(task.category);
   const [editDueDate, setEditDueDate] = useState(task.due_date);
   const [editPriority, setEditPriority] = useState(task.priority);
-  const [comments, setComments] = useState(task.comments || []);
+  const [selectedList, setSelectedList] = useState('');
 
   useEffect(() => {
-    setEditTitle(task.title);
-    setEditCategory(task.category);
-    setEditDueDate(task.due_date);
-    setEditPriority(task.priority);
-    setComments(task.comments || []);
-    dispatch(fetchCategories()); // Fetch categories when the modal is opened
-  }, [task, dispatch]);
-
-  const handleAddComment = async () => {
-    const updatedComments = [...comments, newComment];
-    await dispatch(updateTask({ id: task.id, comments: updatedComments }));
-    setComments(updatedComments);
-    setNewComment('');
-  };
-
-  const handleDeleteComment = async (index: number) => {
-    const updatedComments = comments.filter((_: string, i: number) => i !== index);
-    await dispatch(updateTask({ id: task.id, comments: updatedComments }));
-    setComments(updatedComments);
-  };
+    dispatch(fetchLists());
+    dispatch(fetchListItems(task.id));
+  }, [dispatch, task.id]);
 
   const handleSaveChanges = async () => {
     const updatedTask = {
-      ...task, // Spread the task object to create a shallow copy
+      ...task,
       title: editTitle,
       category: editCategory,
       due_date: editDueDate,
       priority: editPriority,
     };
-
     await dispatch(updateTask(updatedTask));
-    onClose();
+    setEditMode(false);
   };
+
+  const handleAddToList = async () => {
+    if (selectedList) {
+      await dispatch(addListItem({ listId: selectedList, taskId: task.id, title: task.title }));
+    }
+  };
+
+  const relatedLists = lists.filter(list => listItems.some(item => item.list_id === list.id && item.title === task.title));
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
@@ -74,16 +65,13 @@ const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({ task, onClose }) =>
               className="w-full p-2 border border-gray-300 rounded mb-2"
               placeholder="Title"
             />
-            <select
+            <input
+              type="text"
               value={editCategory}
               onChange={(e) => setEditCategory(e.target.value)}
               className="w-full p-2 border border-gray-300 rounded mb-2"
-            >
-              <option value="">Select Category</option>
-              {categories.map((cat) => (
-                <option key={cat.id} value={cat.name}>{cat.name}</option>
-              ))}
-            </select>
+              placeholder="Category"
+            />
             <input
               type="date"
               value={editDueDate}
@@ -103,6 +91,7 @@ const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({ task, onClose }) =>
               className="w-full bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded mb-2"
               onClick={handleSaveChanges}
             >
+              <FaSave className="inline-block mr-2" />
               Save Changes
             </button>
           </>
@@ -122,33 +111,40 @@ const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({ task, onClose }) =>
             <p className="mb-2"><strong>Priority:</strong> {task.priority}</p>
           </>
         )}
-        <hr className="my-4" />
-        <h3 className="text-xl font-bold mb-2">Comments</h3>
-        <div className="mb-4 max-h-40 overflow-y-auto">
-          {comments.map((comment: string, index: number) => (
-            <div key={index} className="flex items-center justify-between bg-gray-100 p-2 rounded mb-2">
-              <p>{comment}</p>
-              <button className="text-red-500 hover:underline" onClick={() => handleDeleteComment(index)}>
-                <FaMinus />
-              </button>
-            </div>
-          ))}
-        </div>
-        <div className="flex items-center mb-2">
-          <input
-            type="text"
-            value={newComment}
-            onChange={(e) => setNewComment(e.target.value)}
-            placeholder="Add a comment"
-            className="w-full p-2 border border-gray-300 rounded"
-          />
-          <button
-            className="text-green-500 hover:text-green-700 ml-2"
-            onClick={handleAddComment}
+        <div className="mb-4">
+          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="list">
+            Add to List
+          </label>
+          <select
+            id="list"
+            value={selectedList}
+            onChange={(e) => setSelectedList(e.target.value)}
+            className="w-full p-2 border border-gray-300 rounded mb-2"
           >
-            <FaCheck size={20} />
+            <option value="">Select List</option>
+            {lists.map((list) => (
+              <option key={list.id} value={list.id}>{list.name}</option>
+            ))}
+          </select>
+          <button
+            className="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+            onClick={handleAddToList}
+          >
+            Add to List
           </button>
         </div>
+        {relatedLists.length > 0 && (
+          <div className="mb-4">
+            <h3 className="text-xl font-bold">Related Lists</h3>
+            <ul className="list-disc list-inside">
+              {relatedLists.map(list => (
+                <li key={list.id} className="py-2 px-4 border-b border-gray-300">
+                  {list.name}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
       </div>
     </div>
   );

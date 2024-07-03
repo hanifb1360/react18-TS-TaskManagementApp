@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { supabase } from '../supabaseClient';
 import { fetchUser } from '../features/userSlice';
@@ -6,13 +6,15 @@ import { AppDispatch } from '../app/store';
 import { Link } from 'react-router-dom';
 
 const SignIn: React.FC = () => {
-  // Retrieve the last logged-in email from localStorage
+  // Retrieve the last logged-in email from localStorage, default to an empty string if not found
   const lastEmail = localStorage.getItem('lastEmail') || '';
 
+  // Initialize state for email and password, setting email to the last logged-in email
   const [email, setEmail] = useState(lastEmail);
   const [password, setPassword] = useState('');
   const dispatch = useDispatch<AppDispatch>();
 
+  // Handle sign-in form submission
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     const { error } = await supabase.auth.signInWithPassword({ email, password });
@@ -58,6 +60,7 @@ const SignIn: React.FC = () => {
 };
 
 export default SignIn;
+
 
 
 

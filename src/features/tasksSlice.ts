@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import { supabase } from '../supabaseClient';
 
+
 interface Task {
   id: string;
   title: string;
@@ -23,7 +24,7 @@ const initialState: TasksState = {
   error: null,
 };
 
-const fetchTasks = createAsyncThunk<Task[], void, { rejectValue: string }>(
+export const fetchTasks = createAsyncThunk<Task[], void, { rejectValue: string }>(
   'tasks/fetchTasks',
   async (_, { rejectWithValue }) => {
     const { data, error } = await supabase.from('tasks').select('*');
@@ -32,7 +33,7 @@ const fetchTasks = createAsyncThunk<Task[], void, { rejectValue: string }>(
   }
 );
 
-const addTask = createAsyncThunk<Task, Partial<Task>, { rejectValue: string }>(
+export const addTask = createAsyncThunk<Task, Partial<Task>, { rejectValue: string }>(
   'tasks/addTask',
   async (task, { rejectWithValue }) => {
     const { data, error } = await supabase.from('tasks').insert(task).select();
@@ -41,7 +42,7 @@ const addTask = createAsyncThunk<Task, Partial<Task>, { rejectValue: string }>(
   }
 );
 
-const updateTask = createAsyncThunk<Task, Partial<Task>, { rejectValue: string }>(
+export const updateTask = createAsyncThunk<Task, Partial<Task>, { rejectValue: string }>(
   'tasks/updateTask',
   async (task, { rejectWithValue }) => {
     const { data, error } = await supabase.from('tasks').update(task).eq('id', task.id).select();
@@ -50,7 +51,7 @@ const updateTask = createAsyncThunk<Task, Partial<Task>, { rejectValue: string }
   }
 );
 
-const updateTaskCompletion = createAsyncThunk<Task, { id: string; completed: boolean }, { rejectValue: string }>(
+export const updateTaskCompletion = createAsyncThunk<Task, { id: string; completed: boolean }, { rejectValue: string }>(
   'tasks/updateTaskCompletion',
   async ({ id, completed }, { rejectWithValue }) => {
     const { data, error } = await supabase.from('tasks').update({ completed }).eq('id', id).select();
@@ -59,11 +60,17 @@ const updateTaskCompletion = createAsyncThunk<Task, { id: string; completed: boo
   }
 );
 
-const deleteTask = createAsyncThunk<string, string, { rejectValue: string }>(
+export const deleteTask = createAsyncThunk<string, string, { rejectValue: string }>(
   'tasks/deleteTask',
   async (id, { rejectWithValue }) => {
-    const { error } = await supabase.from('tasks').delete().eq('id', id);
-    if (error) return rejectWithValue(error.message);
+    // First delete the task from the list_items table
+    const { error: listItemError } = await supabase.from('list_items').delete().eq('task_id', id);
+    if (listItemError) return rejectWithValue(listItemError.message);
+
+    // Then delete the task from the tasks table
+    const { error: taskError } = await supabase.from('tasks').delete().eq('id', id);
+    if (taskError) return rejectWithValue(taskError.message);
+
     return id;
   }
 );
@@ -107,4 +114,5 @@ const tasksSlice = createSlice({
 });
 
 export default tasksSlice.reducer;
-export { fetchTasks, addTask, updateTask, updateTaskCompletion, deleteTask };
+
+
