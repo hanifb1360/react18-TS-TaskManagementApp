@@ -11,7 +11,7 @@ const AddTask: React.FC = () => {
   const [category, setCategory] = useState('');
   const [dueDate, setDueDate] = useState('');
   const [priority, setPriority] = useState('Medium');
-  const [selectedList, setSelectedList] = useState('');
+  const [selectedList, setSelectedList] = useState<string | null>(null);
 
   const dispatch = useDispatch<AppDispatch>();
   const user = useSelector((state: RootState) => state.user.user);
@@ -36,18 +36,16 @@ const AddTask: React.FC = () => {
         due_date: dueDate,
         priority,
       };
-      const resultAction = await dispatch(addTask(task));
-      if (addTask.fulfilled.match(resultAction)) {
-        const taskId = resultAction.payload.id;
-        if (selectedList) {
-          await dispatch(addListItem({ listId: selectedList, taskId, title }));
-        }
+      const result = await dispatch(addTask(task));
+      const newTask = result.payload as { id: string; title: string };
+      if (selectedList && newTask.id) {
+        await dispatch(addListItem({ listId: selectedList, taskId: newTask.id, title: newTask.title }));
       }
       setTitle('');
       setCategory('');
       setDueDate('');
       setPriority('Medium');
-      setSelectedList('');
+      setSelectedList(null);
     }
   };
 
@@ -119,11 +117,11 @@ const AddTask: React.FC = () => {
           </label>
           <select
             id="list"
-            value={selectedList}
+            value={selectedList || ''}
             onChange={(e) => setSelectedList(e.target.value)}
             className="w-full p-2 border border-gray-300 rounded"
           >
-            <option value="">Select List</option>
+            <option value="">Select a list</option>
             {lists.map((list) => (
               <option key={list.id} value={list.id}>{list.name}</option>
             ))}
