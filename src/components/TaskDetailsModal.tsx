@@ -4,7 +4,7 @@ import { AppDispatch, RootState } from '../app/store';
 import { updateTask } from '../features/tasksSlice';
 import { fetchLists } from '../features/listsSlice';
 import { fetchListItemsByTaskId, addListItem } from '../features/listItemsSlice';
-import { FaEdit, FaSave, FaTimes } from 'react-icons/fa';
+import { FaEdit, FaTimes } from 'react-icons/fa';
 
 interface TaskDetailsModalProps {
   task: any;
