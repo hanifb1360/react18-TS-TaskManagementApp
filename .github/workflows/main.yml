@@ -1,0 +1,47 @@
+name: Deploy React App to Vercel
+
+# Trigger the workflow on a push to the 'main' branch
+on:
+  push:
+    branches:
+      - main  # Branch to monitor for changes
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest  # The operating system to use for the job
+
+    steps:
+      # Step 1: Check out the code from the repository
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Step 2: Set up Node.js environment
+      # This action installs the specified version of Node.js
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20.16.0'  # Specify the Node.js version to use
+
+      # Step 3: Install npm dependencies
+      # This step runs 'npm install' to install all the dependencies listed in package.json
+      - name: Install dependencies
+        run: npm install
+
+      # Step 4: Set environment variables
+      # This step uses secrets stored in GitHub to set the environment variables needed for the build
+      - name: Set environment variables
+        run: |
+          echo "REACT_APP_SUPABASE_URL=${{ secrets.REACT_APP_SUPABASE_URL }}" >> $GITHUB_ENV
+          echo "REACT_APP_SUPABASE_KEY=${{ secrets.REACT_APP_SUPABASE_KEY }}" >> $GITHUB_ENV
+
+      # Step 5: Build the React app
+      # This step runs the build script, which compiles the React app into static files for production
+      - name: Build the React app
+        run: npm run build
+
+      # Step 6: Deploy the built app to Vercel
+      # This step deploys the app to Vercel using the Vercel CLI
+      - name: Deploy to Vercel
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}  # Vercel token for authentication
+        run: npx vercel --prod --token ${{ secrets.VERCEL_TOKEN }}
