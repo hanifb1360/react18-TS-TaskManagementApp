@@ -27,19 +27,15 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      # Step 4: Set environment variables
-      # This step uses secrets stored in GitHub to set the environment variables needed for the build
-      - name: Set environment variables
-        run: |
-          echo "REACT_APP_SUPABASE_URL=${{ secrets.REACT_APP_SUPABASE_URL }}" >> $GITHUB_ENV
-          echo "REACT_APP_SUPABASE_KEY=${{ secrets.REACT_APP_SUPABASE_KEY }}" >> $GITHUB_ENV
-
-      # Step 5: Build the React app
-      # This step runs the build script, which compiles the React app into static files for production
+      # Step 4: Build the React app with environment variables
+      # This step runs the build script with the necessary environment variables
       - name: Build the React app
+        env:
+          REACT_APP_SUPABASE_URL: ${{ secrets.REACT_APP_SUPABASE_URL }}
+          REACT_APP_SUPABASE_KEY: ${{ secrets.REACT_APP_SUPABASE_KEY }}
         run: npm run build
 
-      # Step 6: Deploy the built app to Vercel
+      # Step 5: Deploy the built app to Vercel
       # This step deploys the app to Vercel using the Vercel CLI
       - name: Deploy to Vercel
         env:
