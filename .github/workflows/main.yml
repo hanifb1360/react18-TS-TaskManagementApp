@@ -1,41 +1,36 @@
 name: Deploy React App to Vercel
 
-# Trigger the workflow on a push to the 'main' branch
 on:
   push:
     branches:
-      - main  # Branch to monitor for changes
+      - main
 
 jobs:
   build-and-deploy:
-    runs-on: ubuntu-latest  # The operating system to use for the job
+    runs-on: ubuntu-latest
 
     steps:
       # Step 1: Check out the code from the repository
-      # This action checks out your repository under $GITHUB_WORKSPACE, allowing other steps to access the code.
       - name: Checkout code
         uses: actions/checkout@v3
 
       # Step 2: Set up Node.js environment
-      # This action sets up the specified version of Node.js, making it available for the subsequent steps.
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '20.16.0'  # Specify the Node.js version to use
+          node-version: '20.16.0'
 
       # Step 3: Install npm dependencies
-      # This step runs 'npm install' to install all the dependencies listed in package.json, including dev dependencies.
       - name: Install dependencies
         run: npm install
 
       # Step 4: Disable CI variable to prevent warnings from being treated as errors
-      # Unsetting the CI environment variable prevents ESLint warnings from being treated as errors in the build process.
-      - name: Disable CI variable to prevent warnings from being treated as errors
-        run: unset CI
+      # Unsetting the CI environment variable to ensure ESLint warnings do not fail the build.
+      - name: Disable CI variable
+        run: echo "CI=false" >> $GITHUB_ENV
 
       # Step 5: Build the React app with environment variables
-      # This step runs the build script, which compiles the React app into static files for production.
-      # The necessary environment variables are passed to the build process.
+      # Runs the build script for creating an optimized production build. Environment variables are provided.
       - name: Build the React app
         env:
           REACT_APP_SUPABASE_URL: ${{ secrets.REACT_APP_SUPABASE_URL }}
@@ -43,9 +38,8 @@ jobs:
         run: npm run build
 
       # Step 6: Deploy the built app to Vercel
-      # This step deploys the app to Vercel using the Vercel CLI.
-      # The Vercel token is used for authentication to ensure secure deployment.
+      # Uses the Vercel CLI to deploy the app. Authentication is done using the Vercel token.
       - name: Deploy to Vercel
         env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}  # Vercel token for authentication
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
         run: npx vercel --prod --token ${{ secrets.VERCEL_TOKEN }}
