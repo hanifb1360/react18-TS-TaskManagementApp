@@ -6,6 +6,7 @@ import { fetchCategories } from '../features/categoriesSlice';
 import { fetchLists } from '../features/listsSlice';
 import { addListItem } from '../features/listItemsSlice';
 
+
 const AddTask: React.FC = () => {
   const [title, setTitle] = useState('');
   const [category, setCategory] = useState('');
