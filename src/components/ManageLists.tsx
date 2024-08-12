@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState, AppDispatch } from '../app/store';
 import { fetchLists, addList } from '../features/listsSlice';
-import ListDetailsModal from './ListDetailsModal';
+
 
 interface ManageListsProps {
   onSelectList: (list: any) => void;
